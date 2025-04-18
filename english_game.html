@@ -148,145 +148,16 @@ document.getElementById("voicePlayer").load();
     }
   }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>英語並べ替えクイズ (スマホ完全対応)</title>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      max-width: 100%;
-      box-sizing: border-box;
-      background: linear-gradient(to bottom, #fff0f5, #fdfdff);
-    }
-    ul {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 0;
-      margin-bottom: 20px;
-      list-style: none;
-      justify-content: center;
-    }
-    li {
-      padding: 10px 14px;
-      background: #e0f7fa;
-      border: 1px solid #aaa;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: grab;
-    }
-    .correct {
-      background-color: #c8e6c9;
-    }
-    .incorrect {
-      background-color: #ffcdd2;
-    }
-    button {
-      font-size: 16px;
-      padding: 8px 16px;
-      margin: 5px;
-      background-color: #fce4ec;
-      border: none;
-      border-radius: 8px;
-      color: #333;
-    }
-    #correctAnswer {
-      font-weight: bold;
-      color: green;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
-
-<h2 id="questionTitle">🎩 英文並べ替えクイズ（1問目）</h2>
-
-<ul id="sentenceBox"></ul>
-<ul id="wordBank"></ul>
-
-<button onclick="playAudio()">▶ 音声を再生する</button>
-<button onclick="nextQuestion()" style="display:none;" id="nextBtn">➡ 次の問題へ</button>
-<button onclick="skipQuestion()">⏭ SKIP</button>
-
-<p id="correctAnswer"></p>
-
-<audio id="voicePlayer">
-  <source id="audioSource" src="" type="audio/mpeg">
-</audio>
-
-<script>
-const sentences = [
-  "Did you go to the concert last night? The band played so well!",
-  "I heard a new song yesterday, and I can’t stop humming it.",
-  "Have you ever played a musical instrument? I learned to play the piano last year.",
-  "Who sang that song? Their voice is amazing!",
-  "I went to a live show with my friends, and we danced all night.",
-  "Did you bring your guitar? We can play some songs together.",
-  "I saw a street musician yesterday, and they played a beautiful tune.",
-  "Have you been to the new music festival? It was so much fun!",
-  "I met a famous singer once, and he was so friendly.",
-  "We talked about our favorite bands and found out we like the same one."
-];
-
-let current = 0;
-
-function loadQuestion(index) {
-  document.getElementById("sentenceBox").innerHTML = "";
-  document.getElementById("wordBank").innerHTML = "";
-  document.getElementById("nextBtn").style.display = "none";
-  document.getElementById("correctAnswer").textContent = "";
-  document.getElementById("questionTitle").innerText = `🎩 英文並べ替えクイズ（${index + 1}問目）`;
-
-  const sentence = sentences[index];
-  const words = sentence.split(" ");
-  const shuffled = [...words].sort(() => Math.random() - 0.5);
-
-  for (let word of shuffled) {
-    const li = document.createElement("li");
-    li.textContent = word;
-    document.getElementById("wordBank").appendChild(li);
-  }
-
-  // 空のスロットを作成（あとで入れ替え用）
-  for (let i = 0; i < words.length; i++) {
-    const li = document.createElement("li");
-    li.textContent = "";
-    document.getElementById("sentenceBox").appendChild(li);
-  }
-
-  new Sortable(wordBank, {
-    group: "shared",
-    animation: 150
-  });
-
-  new Sortable(sentenceBox, {
-    group: "shared",
-    animation: 150,
-    onSort: function () {
-      checkCompletion();
-    }
-  });
-
-  const audio = document.getElementById("audioSource");
-  audio.src = `22-${index + 1}.mp3`;
-  document.getElementById("voicePlayer").load();
-}
-
-function checkCompletion() {
-  const slots = document.querySelectorAll("#sentenceBox li");
-  const currentSentence = sentences[current].split(" ");
+ function checkCompletion() {
+  const slots = document.querySelectorAll(".slot");
   let correct = true;
 
   slots.forEach((slot, i) => {
-    if (!slot.textContent) {
+    const word = slot.firstChild;
+    if (!word) {
       slot.classList.remove("correct", "incorrect");
       correct = false;
-    } else if (slot.textContent === currentSentence[i]) {
+    } else if (word.innerText === slot.dataset.expected) {
       slot.classList.add("correct");
       slot.classList.remove("incorrect");
     } else {
@@ -296,40 +167,12 @@ function checkCompletion() {
     }
   });
 
-  document.getElementById("nextBtn").style.display = correct ? "inline-block" : "none";
-}
-
-function playAudio() {
-  document.getElementById("voicePlayer").play();
-}
-
-function nextQuestion() {
-  current++;
-  if (current < sentences.length) {
-    loadQuestion(current);
+  if (correct) {
+    document.getElementById("nextBtn").style.display = "inline-block";
   } else {
-    document.body.innerHTML = "<h2>🎉 全問編結！お疲れさまでした！</h2>";
+    document.getElementById("nextBtn").style.display = "none";
   }
 }
-
-function skipQuestion() {
-  const correct = sentences[current];
-  document.getElementById("correctAnswer").textContent = "✔ 正解: " + correct;
-  setTimeout(() => {
-    current++;
-    if (current < sentences.length) {
-      loadQuestion(current);
-    } else {
-      document.body.innerHTML = "<h2>🎉 全問編結！お疲れさまでした！</h2>";
-    }
-  }, 5000);
-}
-
-loadQuestion(current);
-</script>
-</body>
-</html>
-
 
   function playAudio() {
     const audio = document.getElementById("voicePlayer");
