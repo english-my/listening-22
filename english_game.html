@@ -91,6 +91,7 @@ const sentences = [
 ];
 
 let current = 0;
+let sortableInstance = null;
 
 function loadQuestion(index) {
   const wordBank = document.getElementById("wordBank");
@@ -109,7 +110,12 @@ function loadQuestion(index) {
     wordBank.appendChild(li);
   }
 
-  new Sortable(wordBank, {
+  // 既存のSortableを破棄してから再初期化
+  if (sortableInstance) {
+    sortableInstance.destroy();
+  }
+
+  sortableInstance = new Sortable(wordBank, {
     animation: 150,
     onSort: function () {
       checkCompletion();
